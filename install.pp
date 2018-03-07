@@ -12,6 +12,7 @@ class puppet5::params {
     $r10k_package_name = 'r10k'
     $gem_path = '/opt/puppetlabs/puppet/bin/gem'
     $r10k_path = '/opt/puppetlabs/puppet/bin/r10k'
+    $service_name = 'puppetserver'
 }
 
 class puppet5::repo (
@@ -79,8 +80,35 @@ class puppet5::r10k::install (
          exec { 'r10k-gem-installation':
              command => "${gem_path} install ${r10k_package_name}",
              creates => $r10k_path,
-             require  => Package['puppet-agent'],
+             require => Package['puppet-agent'],
          }
+         host { 'puppet':
+             ensure => 'present',
+             ip     => '127.0.0.1',
+         }
+    }
+}
+
+class puppet5::server::run (
+    $r10k_path         = $puppet5::params::r10k_path,
+    $service_name      = $puppet5::params::service_name,
+) inherits puppet5::params
+{
+    include puppet5::server::install
+    require puppet5::r10k::install
+
+    if $::osfamily == 'RedHat' {
+        exec { 'environment-setup':
+            command => "${r10k_path} deploy environment -p",
+            require => Exec['r10k-gem-installation'],
+        }
+
+        service { 'puppet-server':
+            name    => $service_name,
+            ensure  => 'running',
+            enable  => true,
+            require => Package['puppet-server']
+        }
     }
 }
 
@@ -92,5 +120,5 @@ Package {
 include puppet5::update
 include puppet5::server::install
 include puppet5::r10k::install
+include puppet5::server::run
 
-# /opt/puppetlabs/puppet/bin/gem install r10k
