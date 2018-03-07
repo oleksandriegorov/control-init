@@ -1,39 +1,61 @@
 class puppet5::params {
-    if $::osfamily == 'RedHat' {
-        $platform_name = 'puppet5'
-        $os_abbreviation = 'el'
-        $os_version = $operatingsystemmajrelease
-        $package_name = "${platform_name}-release"
-        $package_filename = "${package_name}-${os_abbreviation}-${os_version}.noarch.rpm"
-        $platform_repository = "https://yum.puppet.com/puppet5/${package_filename}"
-        $agent_package_name = 'puppet-agent'
-        $server_package_name = 'puppetserver'
+    $platform_name       = 'puppet5'
+    $os_version          = $operatingsystemmajrelease
+    case $::osfamily {
+        'RedHat': {
+            case $::operatingsystem {
+                'Fedora': {
+                    $os_abbreviation = 'fedora'
+                }
+                default: {
+                    $os_abbreviation = 'el'
+                }
+            }
+            $repo_urlbase = 'https://yum.puppet.com/puppet5'
+            $version_codename = "${os_abbreviation}-${os_version}"
+            $package_provider = 'rpm'
+        }
+        'Suse': {
+            $repo_urlbase = 'https://yum.puppet.com/puppet5'
+            $os_abbreviation  = 'sles'
+            $version_codename = "${os_abbreviation}-${os_version}"
+            $package_provider = 'rpm'
+        }
+        'Debian': {
+            $repo_urlbase = 'https://apt.puppetlabs.com'
+            $version_codename = $::lsbdistcodename
+            $package_provider = 'dpkg'
+        }
     }
-    $r10k_package_name = 'r10k'
-    $gem_path = '/opt/puppetlabs/puppet/bin/gem'
-    $r10k_path = '/opt/puppetlabs/puppet/bin/r10k'
-    $service_name = 'puppetserver'
+    $package_name        = "${platform_name}-release"
+    $package_filename    = "${package_name}-${version_codename}.noarch.rpm"
+    $platform_repository = "${repo_urlbase}/${package_filename}"
+    $agent_package_name  = 'puppet-agent'
+    $server_package_name = 'puppetserver'
+    $r10k_package_name   = 'r10k'
+    $gem_path            = '/opt/puppetlabs/puppet/bin/gem'
+    $r10k_path           = '/opt/puppetlabs/puppet/bin/r10k'
+    $service_name        = 'puppetserver'
 }
 
 class puppet5::repo (
     $package_name        = $puppet5::params::package_name,
     $package_filename    = $puppet5::params::package_filename,
+    $package_provider    = $puppet5::params::package_provider,
     $platform_repository = $puppet5::params::platform_repository,
 ) inherits puppet5::params
 {
-    if $::osfamily == 'RedHat' {
-        exec { 'download-package':
-            command => "curl ${platform_repository} -s -o ${package_filename}",
-            cwd     => '/tmp',
-            path    => '/bin:/usr/bin',
-            creates => "/tmp/${package_filename}",
-        }
-        package { 'puppet5-platform-repository':
-            name     => $package_name,
-            provider => 'rpm',
-            source   => "/tmp/${package_filename}",
-            require  => Exec['download-package']
-        }
+    exec { 'download-package':
+        command => "curl ${platform_repository} -s -o ${package_filename}",
+        cwd     => '/tmp',
+        path    => '/bin:/usr/bin',
+        creates => "/tmp/${package_filename}",
+    }
+    package { 'puppet5-platform-repository':
+        name     => $package_name,
+        provider => $package_provider,
+        source   => "/tmp/${package_filename}",
+        require  => Exec['download-package']
     }
 }
 
@@ -43,12 +65,10 @@ class puppet5::update (
 {
     include puppet5::repo
 
-    if $::osfamily == 'RedHat' {
-        package { 'puppet-agent':
-            ensure  => 'latest',
-            name    => $agent_package_name,
-            require => Package['puppet5-platform-repository'],
-        }
+    package { 'puppet-agent':
+        ensure  => 'latest',
+        name    => $agent_package_name,
+        require => Package['puppet5-platform-repository'],
     }
 }
 
@@ -59,12 +79,10 @@ class puppet5::server::install (
     include puppet5::repo
     require puppet5::update
 
-    if $::osfamily == 'RedHat' {
-        package { 'puppet-server':
-            ensure  => 'latest',
-            name    => $server_package_name,
-            require => Package['puppet-agent'],
-        }
+    package { 'puppet-server':
+        ensure  => 'latest',
+        name    => $server_package_name,
+        require => Package['puppet-agent'],
     }
 }
 
@@ -76,16 +94,14 @@ class puppet5::r10k::install (
 {
     require puppet5::update
 
-    if $::osfamily == 'RedHat' {
-         exec { 'r10k-gem-installation':
-             command => "${gem_path} install ${r10k_package_name}",
-             creates => $r10k_path,
-             require => Package['puppet-agent'],
-         }
-         host { 'puppet':
-             ensure => 'present',
-             ip     => '127.0.0.1',
-         }
+    exec { 'r10k-gem-installation':
+        command => "${gem_path} install ${r10k_package_name}",
+        creates => $r10k_path,
+        require => Package['puppet-agent'],
+    }
+    host { 'puppet':
+        ensure => 'present',
+        ip     => '127.0.0.1',
     }
 }
 
@@ -97,18 +113,16 @@ class puppet5::server::run (
     include puppet5::server::install
     require puppet5::r10k::install
 
-    if $::osfamily == 'RedHat' {
-        exec { 'environment-setup':
-            command => "${r10k_path} deploy environment -p",
-            require => Exec['r10k-gem-installation'],
-        }
+    exec { 'environment-setup':
+        command => "${r10k_path} deploy environment -p",
+        require => Exec['r10k-gem-installation'],
+    }
 
-        service { 'puppet-server':
-            name    => $service_name,
-            ensure  => 'running',
-            enable  => true,
-            require => Package['puppet-server']
-        }
+    service { 'puppet-server':
+        name    => $service_name,
+        ensure  => 'running',
+        enable  => true,
+        require => Package['puppet-server']
     }
 }
 
