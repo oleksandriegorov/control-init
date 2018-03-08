@@ -1,4 +1,4 @@
-class puppet5::params {
+class puppet::params {
     $platform_name       = 'puppet5'
     $os_version          = $operatingsystemmajrelease
     case $::osfamily {
