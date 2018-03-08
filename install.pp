@@ -94,7 +94,7 @@ class puppet5::r10k::install (
 {
     require puppet5::update
 
-    exec { 'r10k-gem-installation':
+    exec { 'r10k-installation':
         command => "${gem_path} install ${r10k_package_name}",
         creates => $r10k_path,
         require => Package['puppet-agent'],
@@ -115,7 +115,7 @@ class puppet5::server::run (
 
     exec { 'environment-setup':
         command => "${r10k_path} deploy environment -p",
-        require => Exec['r10k-gem-installation'],
+        require => Exec['r10k-installation'],
     }
 
     service { 'puppet-server':
@@ -125,7 +125,6 @@ class puppet5::server::run (
         require => Package['puppet-server']
     }
 }
-
 
 Package {
     allow_virtual => false,
