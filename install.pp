@@ -45,17 +45,17 @@ class puppet5::repo (
     $platform_repository = $puppet5::params::platform_repository,
 ) inherits puppet5::params
 {
-    exec { 'download-package':
+    exec { 'download-release-package':
         command => "curl ${platform_repository} -s -o ${package_filename}",
         cwd     => '/tmp',
         path    => '/bin:/usr/bin',
         creates => "/tmp/${package_filename}",
     }
-    package { 'puppet5-platform-repository':
+    package { 'puppet5-repository':
         name     => $package_name,
         provider => $package_provider,
         source   => "/tmp/${package_filename}",
-        require  => Exec['download-package']
+        require  => Exec['download-release-package']
     }
 }
 
@@ -68,7 +68,7 @@ class puppet5::update (
     package { 'puppet-agent':
         ensure  => 'latest',
         name    => $agent_package_name,
-        require => Package['puppet5-platform-repository'],
+        require => Package['puppet5-repository'],
     }
 }
 
