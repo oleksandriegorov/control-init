@@ -13,4 +13,4 @@ hierarchy:
   - name: "Other YAML hierarchy levels"
     path: "common.yaml"
   - name: "Global YAML level"
-    path: "/etc/puppetlabs/code/environments/common/hieradata/global.yaml"
+    path: "/etc/puppetlabs/code/environments/common/data/global.yaml"
