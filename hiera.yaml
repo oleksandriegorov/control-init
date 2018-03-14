@@ -11,5 +11,6 @@ hierarchy:
   - name: "Per-node data (yaml version)"
     path: "nodes/%{::trusted.certname}.yaml"
   - name: "Other YAML hierarchy levels"
-    paths:
-      - "common.yaml"
+    path: "common.yaml"
+  - name: "Global YAML level"
+    path: "/etc/puppetlabs/code/environments/common/hieradata/global.yaml"
