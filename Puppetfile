@@ -1,5 +1,6 @@
 forge 'forge.puppetlabs.com'
 
+mod 'puppetlabs-stdlib', '4.24.0'
 mod 'gentoo-portage', '2.3.0'
 mod 'puppet-make', '2.0.0'
 mod 'puppet-r10k', '6.3.2'
@@ -13,6 +14,9 @@ mod 'puppetlabs-postgresql', '5.3.0'
 mod 'puppetlabs-puppet_agent', '1.5.0'
 mod 'puppetlabs-puppetdb', '6.0.2'
 mod 'puppetlabs-ruby', '1.0.0'
-mod 'puppetlabs-stdlib', '4.24.0'
 mod 'puppetlabs-transition', '0.1.1'
 mod 'puppetlabs-vcsrepo', '2.3.0'
+
+mod 'puppet',
+  :git    => 'https://github.com/aursu/puppet-puppet.git',
+  :branch => 'master'
