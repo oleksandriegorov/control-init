@@ -59,7 +59,7 @@ class puppet5::repo (
     }
 }
 
-class puppet5::update (
+class puppet5::install::agent (
     $agent_package_name = $puppet5::params::agent_package_name,
 ) inherits puppet5::params
 {
@@ -77,12 +77,12 @@ class puppet5::update (
     }
 }
 
-class puppet5::server::install (
+class puppet5::install::server (
     $server_package_name = $puppet5::params::server_package_name,
 ) inherits puppet5::params
 {
     include puppet5::repo
-    require puppet5::update
+    require puppet5::install::agent
 
     package { 'puppet-server':
         ensure  => 'latest',
@@ -91,13 +91,13 @@ class puppet5::server::install (
     }
 }
 
-class puppet5::r10k::install (
+class puppet5::install::r10k (
     $r10k_package_name = $puppet5::params::r10k_package_name,
     $gem_path          = $puppet5::params::gem_path,
     $r10k_path         = $puppet5::params::r10k_path,
 ) inherits puppet5::params
 {
-    require puppet5::update
+    require puppet5::install::agent
 
     exec { 'r10k-installation':
         command => "${gem_path} install ${r10k_package_name}",
@@ -106,18 +106,23 @@ class puppet5::r10k::install (
     }
 }
 
-class puppet5::server::run (
+class puppet5::setup::server (
     $r10k_path         = $puppet5::params::r10k_path,
-    $service_name      = $puppet5::params::service_name,
 ) inherits puppet5::params
 {
-    include puppet5::server::install
-    require puppet5::r10k::install
+    require puppet5::install::r10k
 
     exec { 'environment-setup':
         command => "${r10k_path} deploy environment -p",
         require => Exec['r10k-installation'],
     }
+}
+
+class puppet5::service (
+    $service_name      = $puppet5::params::service_name,
+) inherits puppet5::params
+{
+    include puppet5::install::server
 
     service { 'puppet-server':
         name    => $service_name,
@@ -131,8 +136,9 @@ Package {
     allow_virtual => false,
 }
 
-include puppet5::update
-include puppet5::server::install
-include puppet5::r10k::install
-include puppet5::server::run
+include puppet5::install::agent
+include puppet5::install::server
+include puppet5::install::r10k
+include puppet5::setup::server
+include puppet5::service
 
