@@ -1,1 +1,1 @@
-include puppet
+include role::puppet::server
