@@ -70,6 +70,11 @@ class puppet5::update (
         name    => $agent_package_name,
         require => Package['puppet5-repository'],
     }
+
+    host { 'puppet':
+        ensure => 'present',
+        ip     => '127.0.0.1',
+    }
 }
 
 class puppet5::server::install (
@@ -98,10 +103,6 @@ class puppet5::r10k::install (
         command => "${gem_path} install ${r10k_package_name}",
         creates => $r10k_path,
         require => Package['puppet-agent'],
-    }
-    host { 'puppet':
-        ensure => 'present',
-        ip     => '127.0.0.1',
     }
 }
 
