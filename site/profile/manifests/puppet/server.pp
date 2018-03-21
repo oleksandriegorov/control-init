@@ -10,9 +10,6 @@ class profile::puppet::server (
     class { '::puppet::setup::server': }
     class { '::puppet::service': }
     if $use_puppetdb {
-        class { '::puppetdb::master::config':
-            manage_storeconfigs     => false,
-            manage_report_processor => false,
-        }
+        include profile::puppetdb
     }
 }
