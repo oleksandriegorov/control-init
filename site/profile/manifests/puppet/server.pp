@@ -42,11 +42,13 @@ class profile::puppet::server (
     if $use_puppetdb {
         class { '::puppetdb': }
         # Notes:
-        # 1) as 'puppet' hostname by default is set - use it as PuppetDB server
-        # name (predefined in profile parameters)
-        # 2) By default class Puppet generates Puppet config from template
-        # therefore we do not manage it inside class Puppetdb::Master::Config
-        # (see 'manage_puppet_config' parameter description)
+        # 1) as 'puppet' hostname by default is set by class Puppet - use it as
+        # PuppetDB server name (predefined in profile parameters as
+        # puppetdb_server)
+        # 2) By default class Puppet generates Puppet config (puppet.conf) from
+        # template therefore we do not want to manage it inside class
+        # Puppetdb::Master::Config (see 'manage_puppet_config' parameter
+        # description)
         # 3) Puppet service resource name provided by Puppet::Service class has
         # alias 'puppet-server'
         #
