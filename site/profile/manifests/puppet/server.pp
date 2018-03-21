@@ -1,9 +1,18 @@
-class profile::puppet::server {
+class profile::puppet::server (
+    Boolean $use_puppetdb = true,
+) {
     class { '::puppet':
-        master => true,
+        master       => true,
+        use_puppetdb => $use_puppetdb,
     }
     class { '::puppet::install::server': }
     class { '::puppet::install::r10k': }
     class { '::puppet::setup::server': }
     class { '::puppet::service': }
+    if $use_puppetdb {
+        class { '::puppetdb::master::config':
+            manage_storeconfigs     => false,
+            manage_report_processor => false,
+        }
+    }
 }
