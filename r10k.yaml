@@ -12,3 +12,6 @@
   :common:
     remote: "https://github.com/aursu/control-common.git"
     basedir: "/etc/puppetlabs/code/environments"
+  :enc:
+    remote: "https://github.com/aursu/control-enc.git"
+    basedir: "/etc/puppetlabs/code/environments"
