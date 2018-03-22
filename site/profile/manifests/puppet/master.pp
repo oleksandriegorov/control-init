@@ -38,8 +38,6 @@ class profile::puppet::master (
     class { '::puppet::install::server': }
     class { '::puppet::install::r10k': }
     class { '::puppet::setup::server': }
-    class { '::puppet::enc': }
-    class { '::puppet::service': }
     if $use_puppetdb {
         class { '::puppetdb': }
         # Notes:
@@ -61,4 +59,6 @@ class profile::puppet::master (
             puppet_service_name            => 'puppet-server',
         }
     }
+    class { '::puppet::service': }
+    class { '::puppet::enc': }
 }
