@@ -1,4 +1,4 @@
-# profile::puppet::server
+# profile::puppet::master
 #
 # Description
 #     Puppet single host installation (Puppet Agent/Server/PuppetDB)
@@ -27,7 +27,7 @@
 # generates Puppet config from template therefore we do not manage it inside
 # class Puppetdb::Master::Config.
 #
-class profile::puppet::server (
+class profile::puppet::master (
     Boolean $use_puppetdb         = true,
     String  $puppetdb_server      = 'puppet',
     Boolean $manage_puppet_config = false,
@@ -38,6 +38,7 @@ class profile::puppet::server (
     class { '::puppet::install::server': }
     class { '::puppet::install::r10k': }
     class { '::puppet::setup::server': }
+    class { '::puppet::enc': }
     class { '::puppet::service': }
     if $use_puppetdb {
         class { '::puppetdb': }
