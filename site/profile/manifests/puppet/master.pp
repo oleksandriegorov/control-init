@@ -61,4 +61,10 @@ class profile::puppet::master (
     }
     class { '::puppet::service': }
     class { '::puppet::enc': }
+    # r10k is not optional in our workflow, it should replace initial setup with
+    # real infrastructure setup.
+    class { '::r10k':
+        provider          => 'puppet_gem',
+        manage_modulepath => $manage_puppet_config,
+    }
 }
