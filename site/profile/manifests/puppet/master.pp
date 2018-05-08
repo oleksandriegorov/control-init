@@ -35,9 +35,8 @@ class profile::puppet::master (
     class { '::puppet':
         use_puppetdb => $use_puppetdb,
     }
-    class { '::puppet::install::server': }
-    class { '::puppet::install::r10k': }
-    class { '::puppet::setup::server': }
+    class { '::puppet::server::install': }
+    class { '::puppet::server::setup': }
     if $use_puppetdb {
         class { '::puppetdb': }
         # Notes:
