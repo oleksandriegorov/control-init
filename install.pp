@@ -45,30 +45,31 @@ class puppet5::repo (
     $platform_repository = $puppet5::params::platform_repository,
 ) inherits puppet5::params
 {
-    exec { 'download-release-package':
-        command => "curl ${platform_repository} -s -o ${package_filename}",
+    exec { "curl ${platform_repository} -s -o ${package_filename}":
         cwd     => '/tmp',
         path    => '/bin:/usr/bin',
         creates => "/tmp/${package_filename}",
+        alias   => 'download-release-package'
     }
-    package { 'puppet5-repository':
-        name     => $package_name,
+
+    package { $package_name:
         provider => $package_provider,
         source   => "/tmp/${package_filename}",
-        require  => Exec['download-release-package']
+        require  => Exec['download-release-package'],
+        alias    => 'puppet5-repository',
     }
 }
 
-class puppet5::install::agent (
+class puppet5::agent::install (
     $agent_package_name = $puppet5::params::agent_package_name,
 ) inherits puppet5::params
 {
     include puppet5::repo
 
-    package { 'puppet-agent':
+    package { $agent_package_name:
         ensure  => 'latest',
-        name    => $agent_package_name,
         require => Package['puppet5-repository'],
+        alias   => 'puppet-agent',
     }
 
     host { 'puppet':
@@ -77,44 +78,43 @@ class puppet5::install::agent (
     }
 }
 
-class puppet5::install::server (
+class puppet5::server::install (
     $server_package_name = $puppet5::params::server_package_name,
 ) inherits puppet5::params
 {
-    include puppet5::repo
-    require puppet5::install::agent
+    require puppet5::agent::install
 
-    package { 'puppet-server':
+    package { $server_package_name:
         ensure  => 'latest',
-        name    => $server_package_name,
         require => Package['puppet-agent'],
+        alias   => 'puppet-server',
     }
 }
 
-class puppet5::install::r10k (
+class puppet5::r10k::install (
     $r10k_package_name = $puppet5::params::r10k_package_name,
     $gem_path          = $puppet5::params::gem_path,
     $r10k_path         = $puppet5::params::r10k_path,
 ) inherits puppet5::params
 {
-    require puppet5::install::agent
+    require puppet5::agent::install
 
-    exec { 'r10k-installation':
-        command => "${gem_path} install ${r10k_package_name}",
+    exec { "${gem_path} install ${r10k_package_name}":
         creates => $r10k_path,
         require => Package['puppet-agent'],
+        alias   => 'r10k-installation',
     }
 }
 
-class puppet5::setup::server (
+class puppet5::server::setup (
     $r10k_path         = $puppet5::params::r10k_path,
 ) inherits puppet5::params
 {
-    require puppet5::install::r10k
+    require puppet5::r10k::install
 
-    exec { 'environment-setup':
-        command => "${r10k_path} deploy environment -p",
+    exec { "${r10k_path} deploy environment -p":
         require => Exec['r10k-installation'],
+        alias   => 'environment-setup',
     }
 }
 
@@ -122,13 +122,13 @@ class puppet5::service (
     $service_name      = $puppet5::params::service_name,
 ) inherits puppet5::params
 {
-    include puppet5::install::server
+    include puppet5::server::install
 
-    service { 'puppet-server':
-        name    => $service_name,
+    service { $service_name:
         ensure  => 'running',
         enable  => true,
-        require => Package['puppet-server']
+        require => Package['puppet-server'],
+        alias   => 'puppet-server',
     }
 }
 
@@ -136,9 +136,5 @@ Package {
     allow_virtual => false,
 }
 
-include puppet5::install::agent
-include puppet5::install::server
-include puppet5::install::r10k
-include puppet5::setup::server
+include puppet5::server::setup
 include puppet5::service
-
