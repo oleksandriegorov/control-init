@@ -27,10 +27,21 @@
 # generates Puppet config from template therefore we do not manage it inside
 # class Puppetdb::Master::Config.
 #
+# [*manage_postgres_dbserver*]
+# Boolean. Default is true. If set then class Puppetdb will use puppetlabs/postgresql
+# for Postgres database server management and PuppetDB database setup
+#
+# [*manage_puppetdb_firewall*]
+# Boolean. Default is false. If set than class Puppetdb::Server will use
+# puppetlabs/firewall for firewall rules setup, iptables/ip6tables services
+# management
+#
 class profile::puppet::master (
-    Boolean $use_puppetdb         = true,
-    String  $puppetdb_server      = 'puppet',
-    Boolean $manage_puppet_config = false,
+    Boolean $use_puppetdb             = true,
+    String  $puppetdb_server          = 'puppet',
+    Boolean $manage_puppet_config     = false,
+    Boolean $manage_postgres_dbserver = true,
+    Boolean $manage_puppetdb_firewall = false,
 ) {
     class { '::puppet':
         use_puppetdb => $use_puppetdb,
@@ -39,7 +50,8 @@ class profile::puppet::master (
     class { '::puppet::server::setup': }
     if $use_puppetdb {
         class { '::puppetdb':
-            manage_firewall => false,
+            manage_dbserver => $manage_postgres_dbserver,
+            manage_firewall => $manage_puppetdb_firewall,
         }
         # Notes:
         # 1) as 'puppet' hostname by default is set by class Puppet - use it as
