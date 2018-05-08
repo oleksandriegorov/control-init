@@ -3,6 +3,11 @@ The only manual steps which should be done are the next:
 1) install puppet agent which provided by current distribution, for example,
 on CentOS 7 it is:
 
+    yum install puppet --disablerepo=* --enablerepo=epel
+
+on CentOS 6 there are no available puppet agent packages
+
+    rpm -Uvh https://yum.puppet.com/puppet5/puppet5-release-el-6.noarch.rpm
     yum install puppet
 
 2) clone current repository on server which is Puppet master:
