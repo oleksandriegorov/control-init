@@ -38,7 +38,9 @@ class profile::puppet::master (
     class { '::puppet::server::install': }
     class { '::puppet::server::setup': }
     if $use_puppetdb {
-        class { '::puppetdb': }
+        class { '::puppetdb':
+            manage_firewall => false,
+        }
         # Notes:
         # 1) as 'puppet' hostname by default is set by class Puppet - use it as
         # PuppetDB server name (predefined in profile parameters as
