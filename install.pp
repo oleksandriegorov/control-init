@@ -1,6 +1,6 @@
 class puppet5::params {
     $platform_name       = 'puppet5'
-    $os_version          = $operatingsystemmajrelease
+    $os_version          = $::operatingsystemmajrelease
     case $::osfamily {
         'RedHat': {
             case $::operatingsystem {
