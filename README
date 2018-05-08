@@ -1,0 +1,35 @@
+The only manual steps which should be done are the next:
+
+1) install puppet agent which provided by current distribution, for example,
+on CentOS 7 it is:
+
+    yum install puppet
+
+2) clone current repository on server which is Puppet master:
+
+    git clone https://github.com/aursu/control-init.git
+
+3) enter into control-init repository folder and run installation manifest
+
+    puppet apply install.pp
+
+This manifest has only goal is to properly install last version of Puppet 5
+components:
+
+* platform YUM/APT repository,
+* puppet agent and
+* puppet server
+
+on current box using instruction from Puppet CE installation manual located on
+https://puppet.com/docs/puppet/latest/puppet_platform.html and on
+https://puppet.com/docs/puppetserver/5.2/install_from_packages.html.
+
+Installation manifest will install r10k and single 'production' environment with
+content of this control repo.
+
+Current control repo will setup Puppet Server, PuppetDB, r10k configuration, ENC
+setup (External Node Classifiers), appropriate cron jobs for agent run and
+environments sync.
+
+New installed environments will replace current one and should take care about
+company/infrastructure specific puppet settings.
