@@ -42,12 +42,15 @@ class profile::puppet::master (
     Boolean $manage_puppet_config     = false,
     Boolean $manage_postgres_dbserver = true,
     Boolean $manage_puppetdb_firewall = false,
+    String  $r10k_cachedir            = '/var/cache/r10k',
 ) {
     class { '::puppet':
         use_puppetdb => $use_puppetdb,
     }
     class { '::puppet::server::install': }
-    class { '::puppet::server::setup': }
+    class { '::puppet::server::setup':
+        cachedir => $r10k_cachedir,
+    }
     if $use_puppetdb {
         class { '::puppetdb':
             manage_dbserver => $manage_postgres_dbserver,
@@ -73,11 +76,13 @@ class profile::puppet::master (
         }
     }
     class { '::puppet::service': }
+    # install ENC script
     class { '::puppet::enc': }
     # r10k is not optional in our workflow, it should replace initial setup with
     # real infrastructure setup.
     class { '::r10k':
         provider          => 'puppet_gem',
         manage_modulepath => $manage_puppet_config,
+        cachedir          => $r10k_cachedir,
     }
 }
