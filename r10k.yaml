@@ -10,8 +10,8 @@
     remote: "https://github.com/aursu/control-init.git"
     basedir: "/etc/puppetlabs/code/environments"
   :common:
-    remote: "https://github.com/aursu/control-common.git"
+    remote: "git@bitbucket.org:aursu-2017/control-common.git"
     basedir: "/etc/puppetlabs/code/environments"
   :enc:
-    remote: "https://github.com/aursu/control-enc.git"
+    remote: "git@bitbucket.org:aursu-2017/control-enc.git"
     basedir: "/etc/puppetlabs/code/environments"
