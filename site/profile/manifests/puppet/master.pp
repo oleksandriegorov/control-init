@@ -44,22 +44,33 @@ class profile::puppet::master (
     Boolean $manage_puppetdb_firewall = false,
     String  $r10k_cachedir            = '/var/cache/r10k',
 ) {
-    class { '::puppet':
+    class { 'puppet':
         use_puppetdb => $use_puppetdb,
     }
-    class { '::puppet::server::install': }
-    class { '::puppet::server::setup':
+
+    class { 'puppet::server::install': }
+
+    # r10k is not optional in our workflow, it should replace initial setup with
+    # real infrastructure setup.
+    class { 'r10k':
+        provider          => 'puppet_gem',
+        manage_modulepath => $manage_puppet_config,
+        cachedir          => $r10k_cachedir,
+    }
+
+    class { 'puppet::server::setup':
         r10k_config_setup => false,
         cachedir          => $r10k_cachedir,
     }
-    # sync our environments after r10k installation and setup
+
     Class['r10k'] -> Class['puppet::server::setup']
 
     if $use_puppetdb {
-        class { '::puppetdb':
+        class { 'puppetdb':
             manage_dbserver => $manage_postgres_dbserver,
             manage_firewall => $manage_puppetdb_firewall,
         }
+
         # Notes:
         # 1) as 'puppet' hostname by default is set by class Puppet - use it as
         # PuppetDB server name (predefined in profile parameters as
@@ -71,23 +82,18 @@ class profile::puppet::master (
         # 3) Puppet service resource name provided by Puppet::Service class has
         # alias 'puppet-server'
         #
-        class { '::puppetdb::master::config':
+        class { 'puppetdb::master::config':
             puppetdb_server                => $puppetdb_server,
             manage_storeconfigs            => $manage_puppet_config,
             manage_report_processor        => $manage_puppet_config,
             create_puppet_service_resource => false,
             puppet_service_name            => 'puppet-server',
         }
+
         # puppet server in defined configraion requires PuppetDB
         Class['puppetdb'] -> Class['puppet::service']
         Class['puppetdb::master::config'] -> Class['puppet::service']
     }
-    class { '::puppet::service': }
-    # r10k is not optional in our workflow, it should replace initial setup with
-    # real infrastructure setup.
-    class { '::r10k':
-        provider          => 'puppet_gem',
-        manage_modulepath => $manage_puppet_config,
-        cachedir          => $r10k_cachedir,
-    }
+
+    class { 'puppet::service': }
 }
