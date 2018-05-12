@@ -95,5 +95,7 @@ class profile::puppet::master (
         Class['puppetdb::master::config'] -> Class['puppet::service']
     }
 
+    class { 'puppet::config': }
+
     class { 'puppet::service': }
 }
