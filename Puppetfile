@@ -18,4 +18,3 @@ mod 'puppetlabs-vcsrepo', '2.3.0'
 mod 'puppet',
   :git    => 'https://github.com/aursu/puppet-puppet.git',
   :branch => 'master'
-
