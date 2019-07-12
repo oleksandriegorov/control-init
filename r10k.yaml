@@ -10,10 +10,10 @@
     remote: "https://github.com/oleksandriegorov/control-init.git"
     basedir: "/etc/puppetlabs/code/environments"
   :common:
-    remote: "https://github.com/aursu/control-common.git"
+    remote: "https://github.com/oleksandriegorov/control-common.git"
     basedir: "/etc/puppetlabs/code/environments"
   :enc:
-    remote: "https://github.com/aursu/control-enc.git"
+    remote: "https://github.com/oleksandriegorov/control-enc.git"
     basedir: /etc/puppetlabs/code/environments
   :build:
     remote: "git@github.com:oleksandriegorov/control-build.git"
