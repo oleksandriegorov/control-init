@@ -93,7 +93,7 @@ class puppet5::server::install (
     file_line { '/etc/sysconfig/puppetserver':
       ensure => present,
       path   => '/etc/sysconfig/puppetserver',
-      line   => 'JAVA_ARGS="-Xms1g -Xmx1g -Djruby.logger.class=com.puppetlabs.jruby_utils.jruby.Slf4jLogger"',
+      line   => 'JAVA_ARGS="-Xms512m -Xmx512m -Djruby.logger.class=com.puppetlabs.jruby_utils.jruby.Slf4jLogger"',
       match  => '^JAVA_ARGS=',
     }
 
