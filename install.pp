@@ -89,6 +89,14 @@ class puppet5::server::install (
         ensure  => 'latest',
         require => Package['puppet-agent'],
     }
+
+    file_line { '/etc/sysconfig/puppetserver':
+      ensure => present,
+      path   => '/etc/sysconfig/puppetserver',
+      line   => 'JAVA_ARGS="-Xms1g -Xmx1g -Djruby.logger.class=com.puppetlabs.jruby_utils.jruby.Slf4jLogger"',
+      match  => '^JAVA_ARGS=',
+    }
+
 }
 
 class puppet5::r10k::install (
